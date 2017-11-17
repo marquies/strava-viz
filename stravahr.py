@@ -325,8 +325,8 @@ while not MyHandler2.allDone:
 # -----------------------------------------------------------------------------
 # Data preparation
 # -----------------------------------------------------------------------------
-if os.path.exists(out_dir):
-    os.remove(out_dir)
+# if os.path.exists(out_dir):
+#    os.remove(out_dir)
 
 os.makedirs(out_dir)
 html_str = """
