@@ -26,7 +26,7 @@ out_dir = './out/'
 # Initialize helper Vars
 
 # limiter of the number of activities requested
-limit = 10
+limit = 25
 
 # Create redirect URL
 url = 'http://localhost:%d/authorized' % port
@@ -120,6 +120,9 @@ def prepareOneActivity(my_data, dir):
             counts[3] += 1
         elif (point > 179):
             counts[4] += 1
+    tmp = counts
+    total = sum(tmp)
+    counts = [(1. * x / total) * 100 for x in tmp]
 
     # Prepare the various data for boxplots
 
@@ -171,9 +174,10 @@ def prepareOneActivity(my_data, dir):
 
     plt.bar(y_pos, counts, align='center', alpha=0.5)
     plt.xticks(y_pos, objects)
-    plt.ylabel('Numbers')
+    plt.ylabel('Percentage of activity')
     plt.xlabel('Zones')
     plt.title('Heartrate Zones')
+    plt.ylim([0, 100])
 
     plt.savefig(dir + '/' + '1.png')
 
@@ -196,28 +200,41 @@ def prepareOneActivity(my_data, dir):
                                        offset=(offset, 0))
     ax2.axis["right"].toggle(all=True)
 
-    ax2.set_ylim([0, 200])
-    ax3.set_ylim([0, 60])
+    ax2_min = -100
+    ax2_max = 175
+    ax3_min = 0
+    ax3_max = 100
+
+    host.set_ylim([0, 100])
+    ax2.set_ylim([ax2_min, ax2_max])
+    ax3.set_ylim([ax3_min, ax3_max])
 
     host.set_xlabel("Zones")
-    host.set_ylabel("# of values")
+    host.set_ylabel("Percentage of activity")
     ax2.set_ylabel("Cadence")
     ax3.set_ylabel("Velocity")
 
 
-    #fig, ax = plt.subplots()
     host.bar(range(1, len(data_len) + 1), data_len, align='center',
              color="lightgrey")
-    bp1 = ax2.boxplot(cadz_by_zones, )
-    bp2 = ax3.boxplot(velo_by_zones)
 
-    #ax2.yaxis.label.set_color('red')
-    #ax3.yaxis.label.set_color('blue')
+    bp1 = ax2.boxplot(cadz_by_zones, widths=0.6)
+    bp2 = ax3.boxplot(velo_by_zones, widths=0.6)
+
     ax2.axis["right"].label.set_color("red")
     ax3.axis["right"].label.set_color("blue")
 
     host.set_xticklabels(objects, rotation='vertical')
+    # major ticks every 20, minor ticks every 5
+    ax2_major_ticks = np.arange(ax2_min, ax2_max, 20)
+    ax2_minor_ticks = np.arange(ax2_min, ax2_max, 5)
+    ax2.set_yticks(ax2_major_ticks)
+    ax2.set_yticks(ax2_minor_ticks, minor=True)
 
+    ax3_major_ticks = np.arange(ax3_min, ax3_max, 20)
+    ax3_minor_ticks = np.arange(ax3_min, ax3_max, 5)
+    ax3.set_yticks(ax3_major_ticks)
+    ax3.set_yticks(ax3_minor_ticks, minor=True)
 
     for box in bp1['boxes']:
         box.set(color='red', linewidth=1)
@@ -339,6 +356,17 @@ html_str = """
      </tr>
      <indent>
 """
+
+name_counter = {}
+
+for act in iter(MyHandler2.data.values()):
+    if (len(act['act_name']) > 0 and ('heartrate' in (act))):
+        if act['act_name'][0] in name_counter:
+            name_counter[act['act_name'][0]] += 1
+            act['act_name'][0] = act['act_name'][0] + str(name_counter[
+                act['act_name'][0]])
+        else:
+            name_counter[act['act_name'][0]] = 0
 
 for act in iter(MyHandler2.data.values()):
     if (len(act['act_name']) > 0 and ('heartrate' in (act))):
