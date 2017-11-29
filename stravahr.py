@@ -261,7 +261,9 @@ def prepareOneActivity(my_data, dir):
             patch.set_facecolor(color)
 
     axes[0].yaxis.grid(True)
+    axes[1].yaxis.grid(True)
     axes[0].set_xticks([y + 1 for y in range(len(hfrq_by_zones))], )
+
     axes[0].set_xlabel('Zones')
     axes[0].set_ylabel('Heartrate')
 
@@ -385,3 +387,5 @@ html_str += """
 Html_file = open(out_dir + '/' + "report.html", "w")
 Html_file.write(html_str)
 Html_file.close()
+
+webbrowser.open(out_dir + '/' + "report.html")
